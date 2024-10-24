@@ -5,6 +5,7 @@ import HeroSection from '../components/HeroSection';
 import Login from './Login';
 import Signup from './Signup';
 import Dashboard from './Dashboard';
+import ForgotPassword from './ForgetPassword';
 
 const Home = () => {
   return (
@@ -17,6 +18,7 @@ const Home = () => {
 
           {/* Login route */}
           <Route path="/login" element={<Login />} />
+          <Route path='/forget_password' element={<ForgotPassword/>}/>
 
           {/* Signup route */}
           <Route path="/signup" element={<Signup />} />
