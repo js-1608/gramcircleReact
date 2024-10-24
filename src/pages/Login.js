@@ -18,8 +18,13 @@ const Login = () => {
       {/* Left Section: Form */}
       <div className="md:w-1/2 bg-white flex justify-center items-center py-12 px-6">
         <div className="w-full max-w-md">
-          <h2 className="text-3xl font-bold text-center mb-6 text-blue-900">Login to Your Account</h2>
-          <form onSubmit={handleLogin} className="space-y-6">
+        <div className="m-auto text-center mb-6 text-blue-900">
+          <img
+            src="./Logonew.png"
+            alt="Logo"
+            className="h-1/2 w-1/2 m-auto"
+          />
+          </div>          <form onSubmit={handleLogin} className="space-y-6">
             
             {/* Email */}
             <div className="relative">
