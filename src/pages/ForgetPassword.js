@@ -10,7 +10,8 @@ const ForgotPassword = () => {
     event.preventDefault();
     // Handle password reset logic (API call to send reset link to email)
     alert('Password reset link has been sent to your email.');
-  };
+    navigate("/otp-verification")
+};
   const handleBack = () => {
     navigate(-1); // Navigate to the previous page
   };

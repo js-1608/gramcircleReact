@@ -33,7 +33,7 @@ const Header = () => {
       </div>
 
       {/* Mobile Menu Toggle */}
-      <div className="md:hidden">
+      <div className="md:hidden ">
         <button
           className="text-white focus:outline-none"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -57,7 +57,7 @@ const Header = () => {
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <div className="absolute top-16 right-0 bg-blue-900 w-full px-6 py-4 md:hidden">
+        <div className="absolute top-16 right-0 bg-blue-900 w-full px-6 py-4 md:hidden z-[1000]">
           <a
             href="/login"
             className="block text-yellow-400 py-2 px-4 rounded hover:bg-yellow-400 hover:text-blue-900 transition duration-300"

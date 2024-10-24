@@ -10,7 +10,7 @@ const Login = () => {
     // Logic for authentication (e.g., API call)
     
     // Navigate to dashboard after login
-    navigate('/dashboard');
+    navigate('/profile');
   };
 
   return (

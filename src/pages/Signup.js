@@ -44,7 +44,7 @@ const SignUp = () => {
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left Section: Form */}
-      <div className="md:w-1/2 bg-white flex justify-center items-center py-12 px-6">
+      <div className="md:w-1/2 bg-white flex justify-center items-center py-12 px-6  m-auto">
         <div className="w-full max-w-md">
           <div className="m-auto text-center mb-6 text-blue-900">
           <img
@@ -298,13 +298,13 @@ const SignUp = () => {
       </div>
 
       {/* Right Section: Image (only on larger screens) */}
-      <div className="hidden md:block md:w-1/2 bg-color">
+      {/* <div className="hidden md:block md:w-1/2 bg-color">
         <img
           src="../home/signup.png"
           alt="Signup Visual"
           className="object-cover h-full w-full"
         />
-      </div>
+      </div> */}
     </div>
   );
 };
