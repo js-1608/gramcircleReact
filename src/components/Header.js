@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { isLoggedIn, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   return (
     <header className="bg-color text-white py-4 px-6 md:px-12 flex justify-between items-center">
@@ -16,24 +25,35 @@ const Header = () => {
         </a>
       </div>
 
-      {/* Right Section: Login/Signup Buttons */}
+      {/* Right Section: Login/Signup/Logout Buttons */}
       <div className="hidden md:flex space-x-4">
-        <a
-          href="/login"
-          className="bg-transparent border border-yellow-400 text-yellow-400 font-semibold py-2 px-4 rounded hover:bg-yellow-400 hover:text-blue-900 transition duration-300"
-        >
-          Login
-        </a>
-        <a
-          href="/signup"
-          className="bg-yellow-400 text-blue-900 font-semibold py-2 px-4 rounded hover:bg-yellow-500 transition duration-300"
-        >
-          Sign Up
-        </a>
+        {!isLoggedIn ? (
+          <>
+            <a
+              href="/login"
+              className="bg-transparent border border-yellow-400 text-yellow-400 font-semibold py-2 px-4 rounded hover:bg-yellow-400 hover:text-blue-900 transition duration-300"
+            >
+              Login
+            </a>
+            <a
+              href="/register"
+              className="bg-yellow-400 text-blue-900 font-semibold py-2 px-4 rounded hover:bg-yellow-500 transition duration-300"
+            >
+              Sign Up
+            </a>
+          </>
+        ) : (
+          <button
+            onClick={handleLogout}
+            className="bg-red-500 text-white font-semibold py-2 px-4 rounded hover:bg-red-600 transition duration-300"
+          >
+            Logout
+          </button>
+        )}
       </div>
 
       {/* Mobile Menu Toggle */}
-      <div className="md:hidden ">
+      <div className="md:hidden">
         <button
           className="text-white focus:outline-none"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -57,19 +77,30 @@ const Header = () => {
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <div className="absolute top-16 right-0 bg-blue-900 w-full px-6 py-4 md:hidden z-[1000]">
-          <a
-            href="/login"
-            className="block text-yellow-400 py-2 px-4 rounded hover:bg-yellow-400 hover:text-blue-900 transition duration-300"
-          >
-            Login
-          </a>
-          <a
-            href="/signup"
-            className="block bg-yellow-400 text-blue-900 py-2 px-4 mt-2 rounded hover:bg-yellow-500 transition duration-300"
-          >
-            Sign Up
-          </a>
+        <div className="absolute top-16 right-0 bg-blue-900 w-full px-6 py-4 md:hidden">
+          {!isLoggedIn ? (
+            <>
+              <a
+                href="/login"
+                className="block text-yellow-400 py-2 px-4 rounded hover:bg-yellow-400 hover:text-blue-900 transition duration-300"
+              >
+                Login
+              </a>
+              <a
+                href="/signup"
+                className="block bg-yellow-400 text-blue-900 py-2 px-4 mt-2 rounded hover:bg-yellow-500 transition duration-300"
+              >
+                Sign Up
+              </a>
+            </>
+          ) : (
+            <button
+              onClick={handleLogout}
+              className="block w-full text-left text-red-500 py-2 px-4 rounded hover:bg-red-500 hover:text-white transition duration-300"
+            >
+              Logout
+            </button>
+          )}
         </div>
       )}
     </header>

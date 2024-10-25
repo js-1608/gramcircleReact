@@ -1,42 +1,49 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import Header from '../components/Header';
 import HeroSection from '../components/HeroSection';
-import Login from './Login';
-import Signup from './Signup';
+import { useAuth } from '../context/AuthContext';
 import Dashboard from './Dashboard';
-import ForgotPassword from './ForgetPassword';
-import Profile from './Profile';
-import ResetPassword from './ReasetPassword';
-import OTPverification from './OTPverification';
-
+import ForgotenPassword from './ForgetPassword';
+import Login from './Login';
+import PersonalDetail from './Profile';
+import ResetPassword from './ResetPassword';
+import Signup from './Signup';
+import VerifyEmail from './VerifyEmail';
 const Home = () => {
-  return (
-    <Router>
-      <div>
-        <Header />
-        <Routes>
-          {/* Home page with hero section */}
-          <Route path="/" element={<HeroSection />} />
+    const { isLoggedIn } = useAuth();
 
-          {/* Login route */}
-          <Route path="/login" element={<Login />} />
-          <Route path='/forget_password' element={<ForgotPassword/>}/>
-          <Route path="/otp-verification" element={<OTPverification />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+    // Protected route component
+    const ProtectedRoute = ({ children }) => {
+        return isLoggedIn ? children : <Navigate to="/login" />;
+    };
 
-          {/* Signup route */}
-          <Route path="/signup" element={<Signup />} />
-
-          {/* profile route */}
-          <Route path="/profile" element={<Profile />} />
-
-          {/* Dashboard route (after login) */}
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Routes>
-      </div>
-    </Router>
-  );
+    return (
+        <Router>
+            <div className="App">
+                <Header />
+                <Routes>
+                    {isLoggedIn ? (
+                        <>
+                            <Route path="/" element={<Dashboard />} />
+                            <Route path="/personal-detail" element={<PersonalDetail />} />
+                            <Route path="*" element={<Navigate to="/" />} />
+                        </>
+                    ) : (
+                        <>
+                            <Route path="/" element={<HeroSection />} />
+                            <Route path="/login" element={<Login />} />
+                            <Route path="/register" element={<Signup />} />
+                            <Route path="/forgotPassword" element={<ForgotenPassword />} />
+                            <Route path="*" element={<Navigate to="/login" />} />
+                        </>
+                    )}
+                    <Route path="/verify-email/:token" element={<VerifyEmail />} />
+                    <Route path="/reset-password/:token" element={<ResetPassword />} />
+                </Routes>
+            </div>
+        </Router>
+    );
 };
 
 export default Home;

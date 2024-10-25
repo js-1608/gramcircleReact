@@ -1,50 +1,136 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-import { useState } from 'react';
-import { FaGoogle, FaFacebookF } from 'react-icons/fa';
+import axios from 'axios';
+import React, { useState } from 'react';
+import { FaFacebookF, FaGoogle } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
 const SignUp = () => {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    emailId: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [passwordsMatch, setPasswordsMatch] = useState(true);
+  const [messageType, setMessageType] = useState(''); // 'success' or 'error'
   const navigate = useNavigate();
 
+  const splitName = (fullName) => {
+    const names = fullName.trim().split(' ');
+    const firstName = names[0] || '';
+    const lastName = names.slice(1).join(' ') || '';
+    return { firstName, lastName };
+  };
 
-  const [passwordVisible, setPasswordVisible] = useState(false); // State for password visibility toggle
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [passwordsMatch, setPasswordsMatch] = useState(true); // State to check if passwords match
+  const validateForm = () => {
+    // Name validation
+    if (formData.firstName.trim().length < 2) {
+      setMessage('Name must be at least 2 characters long');
+      return false;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.emailId)) {
+      setMessage('Please enter a valid email address');
+      return false;
+    }
+
+    // Password validation
+    if (formData.password.length < 6) {
+      setMessage('Password must be at least 6 characters long');
+      return false;
+    }
+
+    // Password strength validation
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+    if (!passwordRegex.test(formData.password)) {
+      setMessage('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character');
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage('');
+    setMessageType('');
+    
+    if (!validateForm()) {
+        setMessageType('error');
+        return;
+    }
+    
+    setIsLoading(true);
+    try {
+        const response = await axios.post('https://localhost:7285/api/users/register', {
+            emailId: formData.emailId,
+            password: formData.password,
+            firstName: formData.firstName,
+            lastName: formData.lastName
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.data) {
+            setMessageType('success');
+            setMessage('Email verification link has been sent! Please check your inbox.');
+            localStorage.setItem('registrationEmail', formData.emailId);
+            
+            // Clear form
+            setFormData({
+                firstName: '',
+                lastName: '',
+                emailId: '',
+                password: '',
+                confirmPassword: ''
+            });
+            
+            
+        }
+    } catch (error) {
+        setMessageType('error');
+        let errorMessage = 'Registration failed: ';
+        if (error.response?.data) {
+            errorMessage += error.response.data;
+        } else if (error.message) {
+            errorMessage += error.message;
+        } else {
+            errorMessage += 'Unknown error occurred';
+        }
+        setMessage(errorMessage);
+    } finally {
+        setIsLoading(false);
+    }
+  };
 
   const togglePasswordVisibility = () => {
-    setPasswordVisible(!passwordVisible); // Toggle between showing/hiding password
+    setPasswordVisible(!passwordVisible);
   };
 
   const handlePasswordChange = (e) => {
-    setPassword(e.target.value);
-    checkPasswordsMatch(e.target.value, confirmPassword); // Check if passwords match on password change
+    const newPassword = e.target.value;
+    setFormData({...formData, password: newPassword});
+    // Check if passwords match whenever password changes
+    setPasswordsMatch(newPassword === formData.confirmPassword);
   };
 
   const handleConfirmPasswordChange = (e) => {
-    setConfirmPassword(e.target.value);
-    checkPasswordsMatch(password, e.target.value); // Check if passwords match on confirm password change
+    const newConfirmPassword = e.target.value;
+    setFormData({...formData, confirmPassword: newConfirmPassword});
+    // Check if passwords match whenever confirm password changes
+    setPasswordsMatch(formData.password === newConfirmPassword);
   };
 
-  const checkPasswordsMatch = (pass, confirmPass) => {
-    setPasswordsMatch(pass === confirmPass);
-  };
-
-  const handleSignUp = (event) => {
-    event.preventDefault();
-
-    if (passwordsMatch) {
-      // Logic for authentication (e.g., API call)
-      // Navigate to dashboard after successful sign up
-      navigate('/dashboard');
-    } else {
-      alert("Passwords don't match");
-    }
-  };
   return (
-    <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-white">
+    <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left Section: Form */}
-      <div className="sm:mx-auto sm:w-full sm:max-w-md px-3">
+      <div className="md:w-1/2 bg-white flex justify-center items-center py-12 px-6  m-auto">
         <div className="w-full max-w-md">
           <div className="m-auto text-center mb-6 text-blue-900">
           <img
@@ -53,13 +139,24 @@ const SignUp = () => {
             className="h-1/2 w-1/2 m-auto"
           />
           </div>
-          <form onSubmit={handleSignUp} className="space-y-6">
+          {message && (
+            <div className={`mb-4 p-3 rounded text-center ${
+                messageType === 'success' 
+                    ? 'bg-green-100 text-green-700 border border-green-400' 
+                    : 'bg-red-100 text-red-700 border border-red-400'
+            }`}>
+                {message}
+            </div>
+          )}
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* First Name */}
             <div className="relative">
               <input
                 type="text"
                 id="firstName"
                 name="firstName"
+                value={formData.firstName}
+                onChange={(e) => setFormData({...formData, firstName: e.target.value})}
                 placeholder="First Name"
                 required
                 className="mt-1 block w-full px-10 py-2 border border-gray-300 rounded-full shadow-sm focus:ring-blue-500 focus:border-blue-500"
@@ -85,6 +182,8 @@ const SignUp = () => {
                 type="text"
                 id="lastName"
                 name="lastName"
+                value={formData.lastName}
+                onChange={(e) => setFormData({...formData, lastName: e.target.value})}
                 placeholder="Last Name"
                 required
                 className="mt-1 block w-full px-10 py-2 border border-gray-300 rounded-full shadow-sm focus:ring-blue-500 focus:border-blue-500"
@@ -110,6 +209,8 @@ const SignUp = () => {
                 type="email"
                 id="email"
                 name="email"
+                value={formData.emailId}
+                onChange={(e) => setFormData({...formData, emailId: e.target.value})}
                 placeholder="Email Address"
                 required
                 className="mt-1 block w-full px-10 py-2 border border-gray-300 rounded-full shadow-sm focus:ring-blue-500 focus:border-blue-500"
@@ -135,7 +236,7 @@ const SignUp = () => {
                 name="password"
                 placeholder="Password"
                 required
-                value={password}
+                value={formData.password}
                 onChange={handlePasswordChange}
                 className={`mt-1 block w-full px-10 py-2 border ${passwordsMatch ? 'border-gray-300' : 'border-red-500'} rounded-full shadow-sm focus:ring-blue-500 focus:border-blue-500`}
               />
@@ -179,7 +280,7 @@ const SignUp = () => {
                 name="password"
                 placeholder="Password"
                 required
-                value={confirmPassword}
+                value={formData.confirmPassword}
                 onChange={handleConfirmPasswordChange}
                 className={`mt-1 block w-full px-10 py-2 border ${passwordsMatch ? 'border-gray-300' : 'border-red-500'} rounded-full shadow-sm focus:ring-blue-500 focus:border-blue-500`}
               />

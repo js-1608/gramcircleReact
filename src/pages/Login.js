@@ -1,22 +1,55 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import axios from 'axios';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
+  const [emailId, setEmailId] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleLogin = (event) => {
-    event.preventDefault();
-    // Logic for authentication (e.g., API call)
-    
-    // Navigate to dashboard after login
-    navigate('/profile');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Log the data being sent
+      console.log('Sending data:', { emailId, password });
+
+      const response = await axios.post('https://localhost:7285/api/users/login', {
+        emailId,
+        password,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      console.log('Response:', response); // Debug response
+
+      if (response.data && response.data.token) {
+        login(response.data.token);
+        setMessage('Login successful!');
+        navigate('/');
+      } else {
+        setMessage('Login failed: No token received');
+      }
+    } catch (error) {
+      console.error('Full error:', error); // More detailed error logging
+      if (error.response) {
+        setMessage(`Login failed: ${error.response.data}`);
+      } else if (error.request) {
+        setMessage('Login failed: No response from server');
+      } else {
+        setMessage(`Login failed: ${error.message}`);
+      }
+    }
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-white">
+    <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left Section: Form */}
-      <div className="sm:mx-auto sm:w-full sm:max-w-md  px-3">
+      <div className="md:w-1/2 m-auto bg-white flex justify-center items-center py-12 px-6">
         <div className="w-full max-w-md">
         <div className="m-auto text-center mb-6 text-blue-900">
           <img
@@ -24,7 +57,8 @@ const Login = () => {
             alt="Logo"
             className="h-1/2 w-1/2 m-auto"
           />
-          </div>          <form onSubmit={handleLogin} className="space-y-6">
+          </div>          
+          <form onSubmit={handleSubmit} className="space-y-6">
             
             {/* Email */}
             <div className="relative">
@@ -32,6 +66,8 @@ const Login = () => {
                 type="email"
                 id="email"
                 name="email"
+                value={emailId}
+                onChange={(e) => setEmailId(e.target.value)}
                 placeholder="Email Address"
                 required
                 className="mt-1 block w-full px-10 py-2 border border-gray-300 rounded-full shadow-sm focus:ring-blue-500 focus:border-blue-500"
@@ -57,6 +93,8 @@ const Login = () => {
                 type="password"
                 id="password"
                 name="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
                 required
                 className="mt-1 block w-full px-10 py-2 border border-gray-300 rounded-full shadow-sm focus:ring-blue-500 focus:border-blue-500"
@@ -82,7 +120,7 @@ const Login = () => {
                 </label>
               </div>
               <div className="text-sm">
-                <Link to="/forget_password" className="font-medium text-blue-600 hover:text-blue-500">
+                <Link to="/forgotPassword" className="font-medium text-blue-600 hover:text-blue-500">
                   Forgot your password?
                 </Link>
               </div>
