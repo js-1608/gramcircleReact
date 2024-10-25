@@ -14,9 +14,9 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
+    <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-white">
       {/* Left Section: Form */}
-      <div className="md:w-1/2 m-auto bg-white flex justify-center items-center py-12 px-6">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md  px-3">
         <div className="w-full max-w-md">
         <div className="m-auto text-center mb-6 text-blue-900">
           <img
